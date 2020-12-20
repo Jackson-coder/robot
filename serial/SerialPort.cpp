@@ -57,7 +57,15 @@ bool SerialPort::SerialPort_init(string usart_number)
         return false;
     }
     else
-        printf(" Open COM success!\n");
+        printf("Open COM success!\n");
+
+    datastruct data ;
+    data.channel = 0x01;
+    data.data_H = 0x02;
+    data.data_L = 0x03;
+    data.cmd = 0x04;
+    
+    SerialPort::write(fd, data);
 
     //设置串口
     struct termios option;

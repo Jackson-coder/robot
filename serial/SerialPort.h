@@ -37,8 +37,14 @@ class SerialPort
 {
 public:
     string usart_number;
-    SerialPort();
-    ~SerialPort();
+    SerialPort()
+    {
+
+    };
+    ~SerialPort()
+    {
+        
+    };
 
     bool SerialPort_init(string usart_number);
     ssize_t write(int fd, datastruct data);

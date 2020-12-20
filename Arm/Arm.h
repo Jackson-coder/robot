@@ -52,7 +52,7 @@ public:
 	MyPoint3d pos;//当前位置
 	
 	//Initialize
-	Arm(string port_number,double l[5], double h, double xyz_init[3], double angle_limits_max[3], double angle_limits_min[3],double a_bias[3]);
+	Arm(string port_number,double h, double xyz_init[3], double angle_limits_max[3], double angle_limits_min[3],double a_bias[3]);
 	~Arm();
 	bool Connect();
 	void DisConnect();
@@ -65,7 +65,7 @@ public:
 	bool SetAngles(MyPoint3d aim);
 
 	//
-	void SetAngularVel(char w[3]);
+	void SetAngularVel(uint8_t w[3]);
 
 	//Get a path from linear interpolation
 	bool GetPath(vector<MyPoint3d>& path, MyPoint3d dest, int num);
@@ -73,7 +73,7 @@ public:
 	//judge whether an angle series is in workspace 
 	bool IsInWorkspace();
 
-	void SendCmd(char cmd, char ch, char datal, char datah);
+	void SendCmd(uint8_t cmd, uint8_t ch, uint8_t datal, uint8_t datah);
 
 	//Send Command to the Controller and move the Arm
 	void MoveTo(MyPoint3d p);

@@ -21,7 +21,7 @@ bool Arm::Connect()
 }
 
 //initialize the arm
-Arm::Arm(string port_number, double l[5], double h, double xyz_init[3], double angle_limits_max[3], double angle_limits_min[3], double a_bias[3])
+Arm::Arm(string port_number, double h, double xyz_init[3], double angle_limits_max[3], double angle_limits_min[3], double a_bias[3])
 {
 	this->port_number = port_number;
 	// for (int i = 0; i < 5; i++)
@@ -194,8 +194,8 @@ bool Arm::SetAngles(MyPoint3d aim)
 	pwm[2] = 1500 + ((aim.z - a_bias[2]) * 2000 / 180);
 
 	//convert datatype
-	char tx_l[3] = {0, 0, 0};
-	char tx_h[3] = {0, 0, 0};
+	uint8_t tx_l[3] = {0, 0, 0};
+	uint8_t tx_h[3] = {0, 0, 0};
 	for (int i = 0; i < 3; i++)
 	{
 		tx_h[i] = (pwm[i] >> 8) & 0xff;
@@ -210,7 +210,7 @@ bool Arm::SetAngles(MyPoint3d aim)
 }
 
 //Set three angular Velocity
-void Arm::SetAngularVel(char w[3])
+void Arm::SetAngularVel(uint8_t w[3])
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -224,11 +224,11 @@ void Arm::SetAngularVel(char w[3])
 		}
 	}
 	cout << "vel=" << w[0] << endl;
-	SendCmd(ARM_SET_SPEED, ARM_CH_A0, w[0], 0);
+	SendCmd(ARM_SET_SPEED, ARM_CH_A0, w[0], 0x00);
 	sleep(100);
-	SendCmd(ARM_SET_SPEED, ARM_CH_A1, w[1], 0);
+	SendCmd(ARM_SET_SPEED, ARM_CH_A1, w[1], 0x00);
 	sleep(100);
-	SendCmd(ARM_SET_SPEED, ARM_CH_A2, w[2], 0);
+	SendCmd(ARM_SET_SPEED, ARM_CH_A2, w[2], 0x00);
 	sleep(100);
 }
 
@@ -256,9 +256,9 @@ bool Arm::GetPath(vector<MyPoint3d> &path, MyPoint3d dest, int num)
 	return true;
 }
 
-void Arm::SendCmd(char cmd, char ch, char datal, char datah)
+void Arm::SendCmd(uint8_t cmd, uint8_t ch, uint8_t datal, uint8_t datah)
 {
-	char ctx[5] = {0xff,cmd,ch,datal,datah};
+	// char ctx[5] = {0xff,cmd,ch,datal,datah};
 	port->data.cmd = cmd;
 	port->data.channel = ch;
 	port->data.data_H = datah;
