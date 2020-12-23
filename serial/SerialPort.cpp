@@ -15,7 +15,7 @@ ssize_t SerialPort::write(int fd, datastruct data)
     write_unm = ::write(fd, &data, sizeof(&data));
     if (write_unm > 0)
     {
-        printf("write success! \n ");
+        printf("write success! \n");
     }
     return write_unm;
 }

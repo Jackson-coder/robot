@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <time.h>
+#include <memory>
 
 #include "/home/robot/serial/SerialPort.h"
 using namespace std;
@@ -46,7 +47,7 @@ private:
 	double angle_limits_min[3];	
 	double theta;
 	string port_number;
-	SerialPort* port;
+	shared_ptr<SerialPort> port {new SerialPort};
 public:
 	double a_bias[3];
 	MyPoint3d pos;//当前位置

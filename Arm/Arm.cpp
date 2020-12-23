@@ -39,6 +39,8 @@ Arm::Arm(string port_number, double h, double xyz_init[3], double angle_limits_m
 	pos.y = xyz_init[1];
 	pos.z = xyz_init[2];
 
+	port->usart_number = port_number;
+
 	for (int i = 0; i < 3; i++)
 	{
 		this->angle_limits_max[i] = angle_limits_max[i];

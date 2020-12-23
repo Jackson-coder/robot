@@ -1,6 +1,6 @@
 %YAML:1.0
 ---
-usart_number:/dev/ttyS4
+usart_number:/dev/ttyS5
 h:1
 pos_x_init:2
 pos_y_init:3

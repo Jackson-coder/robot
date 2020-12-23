@@ -33,13 +33,7 @@ int main()
 	fs["a_bias_1"] >> a_bias[1];
 	fs["a_bias_2"] >> a_bias[2];
 
-	while (!port.SerialPort_init(usart_number))
-	{
-		cout<< a_bias[0] <<endl;
-		cout << "SerialPort_init_failed, please retry!" << endl;
-	}
-
-	// Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias);
+	Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias);
 
 	// while (1)
 	// {
