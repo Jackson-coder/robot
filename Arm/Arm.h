@@ -28,32 +28,30 @@ struct MyPoint3d
 
 #define ARM_SET_SPEED 0X01
 #define ARM_SET_ANGLE 0X02
-#define ARM_MOMENT_SERIES 0X09
-#define ARM_EMERGENCY_STOP 0X0B
-#define ARM_CH_A0 0X09
+#define ARM_SET_WAIT 0X03
+#define ARM_CH_A0 0X00
 #define ARM_CH_A1 0X01
-#define ARM_CH_A2 0X02
-#define ARM_CH_PUMP 0X03
-#define ARM_CH_VALVE 0X04
+#define ARM_CH_A2 0X09
+
 
 class Arm
 {
 private:
 	// double l[5];
-	double link[5];//0:OA,1:AB,2:BC
 	double h;
-	double angles[3];//目标角度:0:alpha,1:belta,2:gama
+	double angles[3];//目标角度:0:belta,1:gama,2:alpha
 	double angle_limits_max[3];
 	double angle_limits_min[3];	
-	double theta;
+	double theta=90;
 	string port_number;
 	shared_ptr<SerialPort> port {new SerialPort};
 public:
 	double a_bias[3];
+	double link[3];//0:OA,1:AB,2:BC
 	MyPoint3d pos;//当前位置
 	
 	//Initialize
-	Arm(string port_number,double h, double xyz_init[3], double angle_limits_max[3], double angle_limits_min[3],double a_bias[3]);
+	Arm(string port_number,double h, double xyz_init[3], double angle_limits_max[3], double angle_limits_min[3],double a_bias[3],double link[3]);
 	~Arm();
 	bool Connect();
 	void DisConnect();
@@ -63,7 +61,7 @@ public:
 	// bool GetAnglesFromXYZ(double* result, double x, double y, double z);
 
 	//move the motors to specific angles
-	bool SetAngles(MyPoint3d aim);
+	bool SetAngles(double angles[3]);
 
 	//
 	void SetAngularVel(uint8_t w[3]);

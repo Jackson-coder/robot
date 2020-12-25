@@ -2,15 +2,18 @@
 ---
 usart_number:/dev/ttyS5
 h:1
-pos_x_init:2
-pos_y_init:3
-pos_z_init:4
-alpha_limits_max:5
-belta_limits_max:4
-gama_limis_max:3
-alpha_limits_min:5
-belta_limits_min:4
-gama_limis_min:3
-a_bias_0:1
-a_bias_1:1
-a_bias_2:2
+pos_x_init:-3
+pos_y_init:12
+pos_z_init:10
+alpha_limits_max:180
+belta_limits_max:90
+gama_limits_max:170
+alpha_limits_min:0
+belta_limits_min:0
+gama_limits_min:0
+a_bias_0:0      #beta  60
+a_bias_1:0  #中间
+a_bias_2:0  #alpha  0
+link0:7.5
+link1:15
+link2:16
