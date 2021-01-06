@@ -36,18 +36,30 @@ int main()
 	fs["link0"] >> link[0];
 	fs["link1"] >> link[1];
 	fs["link2"] >> link[2];
-	
-	Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias, link);
 
-	// sleep(2000);
+	VideoCapture capture(0);
+	namedWindow("img");
+	while (1)
+	{
+		Mat picture;
+		capture >> picture;
+		if (picture.empty())
+		{
+			printf("打开失败\n");
+			continue;
+		}
+		imshow("img",picture);
+		waitKey(30);
+	}
 
-	MyPoint3d p;
-	p.x=3;
-	p.y=20;
-	p.z=10;
+	// Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias, link);
 
+	// MyPoint3d p;
+	// p.x=3;
+	// p.y=20;
+	// p.z=10;
 
-	arm.MoveTo(p);
+	// arm.MoveTo(p);
 
 	fs.release();
 	return 0;
