@@ -8,26 +8,19 @@
  * @param capture 
  * @return int* 
  */
-int *camera::find_light(VideoCapture capture)
+void camera::find_light()
 {
-    cv::Mat picture;
-    capture >> picture;
     cvtColor(picture, picture, COLOR_BGR2HSV);
     inRange(picture, Scalar(80, 50, 140), Scalar(130, 255, 255), picture);
 
     cv::Mat drawing = Mat::zeros(picture.size(), CV_8UC3);
     vector<Vec4i> hierarcy;
-    Point2f circle;
+    Point2f center;
 
     vector<vector<Point>> contours;
 
     findContours(picture, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
     vector<RotatedRect> rectanglement(contours.size());
-    int flag[9];
-    for (auto f : flag)
-    {
-        f = 0;
-    }
 
     int area = 10; //最小面积
 
@@ -35,13 +28,17 @@ int *camera::find_light(VideoCapture capture)
     {
         rectanglement[i] = minAreaRect(Mat(contours[i]));
         if (rectanglement[i].size.width * rectanglement[i].size.height < area)
-            circle = rectanglement[i].center;
-        int f = judge(circle);
+            center = rectanglement[i].center;
+        int f = judge(center);
         if (f != -1)
+        {
             flag[f] = 1;
+            cv::circle(picture, center, 3, Scalar(0, 0, 255), 3);
+        }
     }
 
-    return flag;
+    imshow("find_aim", picture);
+    return;
 }
 
 //灯序如下：
@@ -55,32 +52,62 @@ int *camera::find_light(VideoCapture capture)
  * @param circle 
  * @return int 
  */
-int camera::judge(Point2f circle)
+int camera::judge(Point2f center)
 {
     int border_x[4] = {1, 2, 3, 4}; //高低指的是像素值
     int border_y[4] = {1, 2, 3, 4};
-    float x = circle.x;
-    float y = circle.y;
+    float x = center.x;
+    float y = center.y;
     if (x < border_x[0] || y < border_y[0] || x > border_x[3] || y > border_y[3])
+    {
+        printf("-1");
         return -1;
+    }
     else if (x < border_x[1] && y < border_y[1])
+    {
+        printf("0");
         return 0;
+    }
     else if (x > border_x[1] && x < border_x[2] && y < border_y[1])
+    {
+        printf("1");
         return 1;
+    }
     else if (x > border_x[2] && x < border_x[3] && y < border_y[1])
+    {
+        printf("2");
         return 2;
+    }
     else if (x < border_x[1] && y > border_y[1] && y < border_y[2])
+    {
+        printf("3");
         return 3;
+    }
     else if (x > border_x[1] && x < border_x[2] && y > border_y[1] && y < border_y[2])
+    {
+        printf("4");
         return 4;
+    }
     else if (x > border_x[2] && y > border_y[1] && y < border_y[2])
+    {
+        printf("5");
         return 5;
+    }
     else if (x < border_x[1] && y > border_y[2])
+    {
+        printf("6");
         return 6;
+    }
     else if (x > border_x[1] && x < border_x[2] && y > border_y[2])
+    {
+        printf("7");
         return 7;
+    }
     else if (x > border_x[2] && y > border_y[2])
+    {
+        printf("8");
         return 8;
+    }
 }
 
 /**

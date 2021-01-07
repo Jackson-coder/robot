@@ -1,20 +1,18 @@
 
-#include "serial/SerialPort.h"
-#include "Arm/Arm.h"
+// #include "serial/SerialPort.h"
+// #include "Arm/Arm.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "camera/camera.h"
 // #include <unistd.h>
 
 using namespace cv;
 using namespace std;
 
-#define BLACK -1
-#define WHITE 1
-
 int main()
 {
 	FileStorage fs("/home/robot/parameter.yaml", cv::FileStorage::READ);
-	SerialPort port;
+	// SerialPort port;
 	string usart_number;
 	double h;
 	double xyz_init[3], angle_limits_max[3], angle_limits_min[3], a_bias[3], link[3];
@@ -41,14 +39,22 @@ int main()
 	namedWindow("img");
 	while (1)
 	{
-		Mat picture;
-		capture >> picture;
-		if (picture.empty())
+		camera cam;
+		capture >> cam.picture;
+		if (cam.picture.empty())
 		{
 			printf("打开失败\n");
 			continue;
 		}
-		imshow("img",picture);
+		imshow("img", cam.picture);
+		cam.find_light();
+
+		for (int i = 0; i < 9; i++)
+		{
+			printf("%d",cam.flag[i]);
+				
+		}
+
 		waitKey(30);
 	}
 
