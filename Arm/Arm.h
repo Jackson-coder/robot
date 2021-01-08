@@ -61,7 +61,7 @@ public:
 	// bool GetAnglesFromXYZ(double* result, double x, double y, double z);
 
 	//move the motors to specific angles
-	bool SetAngles(double angles[3]);
+	bool SetAngles(double angles[3],bool flag);
 
 	//
 	void SetAngularVel(uint8_t w[3]);
@@ -76,6 +76,8 @@ public:
 
 	//Send Command to the Controller and move the Arm
 	void MoveTo(MyPoint3d p);
+
+	void MoveTo(int num);
 
 };
 

@@ -11,8 +11,10 @@
 ssize_t SerialPort::write(int fd, datastruct data)
 {
     ssize_t write_unm;
+    
     tcflush(fd, TCOFLUSH); //清空，防止数据累积在缓存区
     write_unm = ::write(fd, &data, sizeof(&data));
+    cout<<write_unm<<endl;
     if (write_unm > 0)
     {
         printf("write success! \n");

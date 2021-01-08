@@ -17,7 +17,7 @@ int main()
 	SerialPort port;
 	string usart_number;
 	double h;
-	double xyz_init[3], angle_limits_max[3], angle_limits_min[3], a_bias[3], link[3];
+	double xyz_init[3], angle_limits_max[3], angle_limits_min[3], a_bias[3], link[3],alpha;
 
 	fs["usart_number"] >> usart_number;
 	fs["h"] >> h;
@@ -36,30 +36,35 @@ int main()
 	fs["link0"] >> link[0];
 	fs["link1"] >> link[1];
 	fs["link2"] >> link[2];
+	fs["alpha"] >> alpha;
 
-	VideoCapture capture(0);
-	namedWindow("img");
-	while (1)
-	{
-		Mat picture;
-		capture >> picture;
-		if (picture.empty())
-		{
-			printf("打开失败\n");
-			continue;
-		}
-		imshow("img",picture);
-		waitKey(30);
-	}
+	// VideoCapture capture(0);
+	// namedWindow("img");
+	// while (1)
+	// {
+	// 	Mat picture;
+	// 	capture >> picture;
+	// 	if (picture.empty())
+	// 	{
+	// 		printf("打开失败\n");
+	// 		continue;
+	// 	}
+	// 	imshow("img",picture);
+	// 	waitKey(30);
+	// }
+	
 
-	// Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias, link);
-
-	// MyPoint3d p;
-	// p.x=3;
-	// p.y=20;
-	// p.z=10;
+	Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias, link);
 
 	// arm.MoveTo(p);
+	while(1)
+	{
+		int input;
+		cin>>input;
+		arm.MoveTo(input);
+		sleep(1);
+	}
+
 
 	fs.release();
 	return 0;

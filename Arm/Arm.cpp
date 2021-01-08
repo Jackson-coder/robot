@@ -1,12 +1,14 @@
 #include "Arm.h"
+#include <opencv2/opencv.hpp>
 using namespace std;
+using namespace cv;
 
 bool Arm::Connect()
 {
 	if (port->SerialPort_init(port->usart_number))
 	{
 		cout << "Successfully connected." << endl;
-		SetAngles(angles);
+		SetAngles(angles,0);
 		return true;
 	}
 	else
@@ -21,9 +23,9 @@ Arm::Arm(string port_number, double h, double xyz_init[3], double angle_limits_m
 {
 	this->port_number = port_number;
 	this->h = h;
-	angles[0] = 0;
-	angles[1] = 0;
-	angles[2] = 0;
+	angles[0] = 30;
+	angles[1] = 100;
+	angles[2] = 90;
 	this->a_bias[0] = a_bias[0];
 	this->a_bias[1] = a_bias[1];
 	this->a_bias[2] = a_bias[2];
@@ -41,7 +43,7 @@ Arm::Arm(string port_number, double h, double xyz_init[3], double angle_limits_m
 		this->angle_limits_max[i] = angle_limits_max[i];
 		this->angle_limits_min[i] = angle_limits_min[i];
 	}
-	GetAnglesFromXYZ(pos);
+	// GetAnglesFromXYZ(pos);
 	while (!Connect()) //未连接，自旋等待
 	{
 	}
@@ -68,16 +70,13 @@ bool Arm::IsInWorkspace()
 	double angles0 = angles[0] * 180 / 3.1415927;
 	double angles1 = angles[1] * 180 / 3.1415927;
 	double angles2 = angles[2] * 180 / 3.1415927;
-	cout<<' '<<angles0<<' '<<angles1<<' '<<angles2<<endl;
-	cout<<angle_limits_max[0]<<' '<<angle_limits_max[1]<<' '<<angle_limits_max[2]<<
-		angle_limits_min[0]<<' '<<angle_limits_min[1]<<' '<<angle_limits_min[2]<<endl;
+	cout << ' ' << angles0 << ' ' << angles1 << ' ' << angles2 << endl;
+	cout << angle_limits_max[0] << ' ' << angle_limits_max[1] << ' ' << angle_limits_max[2] << angle_limits_min[0] << ' ' << angle_limits_min[1] << ' ' << angle_limits_min[2] << endl;
 	if (
 		(angles0 <= angle_limits_max[0]) && (angles0 >= angle_limits_min[0]) &&
 		(angles1 <= angle_limits_max[1]) && (angles1 >= angle_limits_min[1]) &&
-		(angles2 <= angle_limits_max[2]) && (angles2 >= angle_limits_min[2])
-		)
+		(angles2 <= angle_limits_max[2]) && (angles2 >= angle_limits_min[2]))
 	{
-		cout<<endl;
 		return true;
 	}
 	else
@@ -104,8 +103,15 @@ bool Arm::GetAnglesFromXYZ(MyPoint3d aim)
 	double T3 = pow(link[1] - link[2] * cos(angles[1]), 2) - (pow(aim.x, 2) + pow(aim.y, 2));
 
 	angles[0] = acos((T2 - sqrt(T2 * T2 + 4 * T1 * T3)) / (2 * T1));
+	//cout << "angles:" << angles[0] << ' ';
 
-	cout << angles[0] << ' ' << angles[1] << ' ' << angles[2] << endl;
+	// cout<<asin(sqrt(pow(aim.x, 2) + pow(aim.y, 2)) / sqrt(AC2))<<endl;
+	// angles[0] = (asin(sqrt(pow(aim.x, 2) + pow(aim.y, 2)) / sqrt(AC2)) < 1.57) ? abs(asin(sqrt(pow(aim.x, 2) + pow(aim.y, 2)) / sqrt(AC2)) - atan((link[2] * sin(angles[1])) / (link[1] - link[2] * cos(angles[1])))) : (3.14 - asin(sqrt(pow(aim.x, 2) + pow(aim.y, 2)) / sqrt(AC2)) - atan((link[2] * sin(angles[1])) / (link[1] - link[2] * cos(angles[1]))));
+	angles[0] = abs(asin(sqrt(pow(aim.x, 2) + pow(aim.y, 2)) / sqrt(AC2)) - atan((link[2] * sin(angles[1])) / (link[1] - link[2] * cos(angles[1]))));
+
+	// double T = pow(link[1],2)+pow(link[2]*cos(angles[]))
+
+	cout << "angles:" << angles[0] << ' ' << angles[1] << ' ' << angles[2] << endl;
 
 	if (IsInWorkspace())
 	{
@@ -129,7 +135,7 @@ void Arm::MoveTo(MyPoint3d p)
 
 	if (GetAnglesFromXYZ(p))
 	{
-		SetAngles(angles);
+		SetAngles(angles,0);
 	}
 }
 
@@ -139,26 +145,42 @@ void Arm::MoveTo(MyPoint3d p)
  * @return true 
  * @return false 
  */
-bool Arm::SetAngles(double angles[3])
+bool Arm::SetAngles(double angles[3], bool flag = 0)
 {
 	//culculate pwm pulse width
 	short pwm[3] = {0, 0, 0};
 
 	//pwm pulse width(us)
-	cout<<angles[0]<<endl;
 	// angles[0] = 0;//上边正，下边负
 	// angles[1] = 0;//上边负，下边正
 	// angles[2] = 0;//左边负，右边正
-	
-	pwm[0] = 1500 - ((angles[0] - a_bias[0]) * 2000 / 180);//beta
-	pwm[1] = 2500 - ((angles[1] - a_bias[1]) * 2000 / 180);//gamma
-	pwm[2] = 500 + ((angles[2] - a_bias[2]) * 2000 / 180);//alpha
-	cout << pwm[0] << ' ' << pwm[1] << ' ' << pwm[2] << endl;
+
+	// pwm[0] = 1500 - ((angles[0] - a_bias[0]) * 2000 / 180);//beta
+	// pwm[1] = 2500 - ((angles[1] - a_bias[1]) * 2000 / 180);//gamma
+	// pwm[2] = 500 + ((angles[2] - a_bias[2]) * 2000 / 180);//alpha
+
+	// int max_num = 90;
+	// // int alpha=72,beta=33,gamma=57;
+	// int beta=30,gamma=100,alpha=90;
+
+	// angles[0] = beta;
+	// angles[1] = gamma;
+	// angles[2] = alpha;
+
+	pwm[2] = 900 + ((angles[2] - a_bias[2]) * 1200 / 180);				//alpha
+	pwm[0] = 1400 - ((angles[0] - a_bias[0]) * 2000 / 180);				//beta
+	pwm[1] = 2300 - ((angles[1] - a_bias[1] - angles[0]) * 2000 / 180); //gamma
+
+	cout << "pwm" << pwm[0] << ' ' << pwm[1] << ' ' << pwm[2] << endl;
+	// pwm[0] = 1400; //  1400->0 900->45
+	// pwm[1] = 1300;   //1800->45 1300->90
+	// pwm[2] = 1500;   //900->0 1500->90 2100->180
+	// cout << "pwm" << pwm[0] << ' ' << pwm[1] << ' ' << pwm[2] << endl;
 
 	//convert datatype
 	uint8_t tx_l[4] = {0, 0, 0};
 	uint8_t tx_h[4] = {0, 0, 0};
-	uint8_t a=0,b=0;
+	uint8_t a = 0, b = 0;
 	for (int i = 0; i < 3; i++)
 	{
 		tx_h[i] = (pwm[i] >> 8) & 0xff;
@@ -167,59 +189,94 @@ bool Arm::SetAngles(double angles[3])
 
 	//transmit to serial port
 	// cout<<unsigned(tx_l[2])<<' '<<unsigned(tx_h[2])<<endl;
-	SendCmd(ARM_SET_ANGLE, ARM_CH_A0, tx_l[0], tx_h[0]);
-	SendCmd(ARM_SET_ANGLE, ARM_CH_A1, tx_l[1], tx_h[1]);
-	SendCmd(ARM_SET_ANGLE, ARM_CH_A2, tx_l[2], tx_h[2]);
-	SendCmd(ARM_SET_ANGLE, ARM_SET_WAIT, a, b);///////////////////////////////////////////////////
+
+	if (flag == 0)
+	{
+		SendCmd(ARM_SET_ANGLE, ARM_CH_A2, tx_l[2], tx_h[2]);
+		sleep(1);
+		SendCmd(ARM_SET_ANGLE, ARM_CH_A0, tx_l[0], tx_h[0]);
+		sleep(1);
+		SendCmd(ARM_SET_ANGLE, ARM_CH_A1, tx_l[1], tx_h[1]);
+		sleep(1);
+	}
+	else 
+	{
+		SendCmd(ARM_SET_ANGLE, ARM_CH_A1, tx_l[1], tx_h[1]);
+		sleep(1);
+		SendCmd(ARM_SET_ANGLE, ARM_CH_A0, tx_l[0], tx_h[0]);
+		sleep(1);
+		SendCmd(ARM_SET_ANGLE, ARM_CH_A2, tx_l[2], tx_h[2]);
+		sleep(1);
+	}
+
+	// SendCmd(ARM_SET_ANGLE, ARM_CH_A0, tx_l[1], tx_h[1]);
+	// sleep(1);
+
+	// SendCmd(ARM_SET_ANGLE, ARM_SET_WAIT, a, b); ///////////////////////////////////////////////////
 }
 
-
-
-//Set three angular Velocity
-void Arm::SetAngularVel(uint8_t w[3])
+void Arm::MoveTo(int num)
 {
-	for (int i = 0; i < 3; i++)
+	switch (num)
 	{
-		if (w[i] > 10)
-		{
-			w[i] = 10;
-		}
-		else if (w[i] <= 0)
-		{
-			w[i] = 1;
-		}
+	case 1:
+		angles[2] = 80;
+		angles[0] = 62;
+		angles[1] = 116;
+		break;
+	case 2:
+		angles[2] = 92;
+		angles[0] = 58;
+		angles[1] = 109;
+		break;
+	case 3:
+		angles[2] = 106;
+		angles[0] = 65;
+		angles[1] = 112;
+		break;
+	case 4:
+		angles[2] = 76;
+		angles[0] = 45;
+		angles[1] = 81;
+		break;
+	case 5:
+		angles[2] = 91;
+		angles[0] = 45;
+		angles[1] = 80;
+		break;
+	case 6:
+		angles[2] = 105;
+		angles[0] = 45;
+		angles[1] = 80;
+		break;
+	case 7:
+		angles[2] = 72;
+		angles[0] = 33;
+		angles[1] = 57;
+		break;
+	case 8:
+		angles[2] = 90;
+		angles[0] = 30;
+		angles[1] = 51;
+		break;
+	case 9:
+		angles[2] = 111;
+		angles[0] = 33;
+		angles[1] = 56;
+		break;
+	case 0:
+		angles[2] = 90;
+		angles[0] = 30;
+		angles[1] = 100;
+		break;
+	default:
+		printf("error order!!!");
+		break;
 	}
-	cout << "vel=" << w[0] << endl;
-	SendCmd(ARM_SET_SPEED, ARM_CH_A0, w[0], 0x00);
-	sleep(100);
-	SendCmd(ARM_SET_SPEED, ARM_CH_A1, w[1], 0x00);
-	sleep(100);
-	SendCmd(ARM_SET_SPEED, ARM_CH_A2, w[2], 0x00);
-	sleep(100);
-}
+	SetAngles(angles,0);
 
-//description: get a path from current position to thet destination.
-//params: path(result), destination, quantity of points
-//return: the path
-bool Arm::GetPath(vector<MyPoint3d> &path, MyPoint3d dest, int num)
-{
-	//interpolation
-	path.clear();
-	path.resize(num + 1);
-	double t = 1.0 / num;
-	for (int i = 0; i <= num; i++)
-	{
-		double a[3] = {0, 0, 0};
-		path[i].x = pos.x + t * i * (dest.x - pos.x);
-		path[i].y = pos.y + t * i * (dest.y - pos.y);
-		path[i].z = pos.z + t * i * (dest.z - pos.z);
-		//if this point on the path is out of workspace
-		if (!GetAnglesFromXYZ(path[i]))
-		{
-			return false;
-		}
-	}
-	return true;
+	angles[0]=30,angles[1]=100,angles[2]=90;
+	SetAngles(angles,1);
 }
 
 void Arm::SendCmd(uint8_t cmd, uint8_t ch, uint8_t datal, uint8_t datah)
