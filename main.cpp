@@ -1,20 +1,18 @@
 
-#include "serial/SerialPort.h"
+// #include "serial/SerialPort.h"
 #include "Arm/Arm.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "camera/camera.h"
 // #include <unistd.h>
 
 using namespace cv;
 using namespace std;
 
-#define BLACK -1
-#define WHITE 1
-
 int main()
 {
 	FileStorage fs("/home/robot/parameter.yaml", cv::FileStorage::READ);
-	SerialPort port;
+	// SerialPort port;
 	string usart_number;
 	double h;
 	double xyz_init[3], angle_limits_max[3], angle_limits_min[3], a_bias[3], link[3],alpha;
@@ -53,7 +51,6 @@ int main()
 	// 	waitKey(30);
 	// }
 	
-
 	Arm arm(usart_number, h, xyz_init, angle_limits_max, angle_limits_min, a_bias, link);
 
 	// arm.MoveTo(p);

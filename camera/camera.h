@@ -7,10 +7,10 @@ using namespace cv;
 class camera
 {
 public:
-    Mat picture;
+    Mat picture;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     int flag[9] = {0};
 
-    int *find_light(VideoCapture capture);
+    void find_light();
     int judge(Point2f circle);
     void record(int flag[9]);
 };
